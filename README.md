@@ -1,96 +1,54 @@
 # Paraphrase Detection with Siamese Neural Networks
 
-> **Deep Learning & NLP Project** | ESI-SBA | 2024/2025
+**NLP & Deep Learning Project — ESI-SBA, 2024–2025**
+
+---
 
 ## Overview
 
-This project implements a Siamese BiLSTM neural network with multi-head attention for semantic similarity detection between sentence pairs. The model determines whether two sentences convey the same meaning despite different wording or structure — a critical task for plagiarism detection, question answering, and chatbot systems. Trained on combined PAWS and Quora Question Pairs datasets with advanced data augmentation.
+This project addresses the task of paraphrase detection — determining whether two sentences convey the same meaning — using a Siamese neural network architecture combining bidirectional LSTMs with multi-head attention. Paraphrase detection is a fundamental problem in natural language processing with direct applications in plagiarism detection, question answering, and information retrieval. The model integrates both learned semantic representations and handcrafted linguistic features to capture surface-level and semantic similarity simultaneously.
 
-## Architecture
+---
 
-```
-Input Sentence Pair
-    │
-    ├── Embedding Layer (384d, subword vocabulary)
-    ├── BiLSTM Encoder (3 layers, 512 hidden units)
-    ├── Multi-Head Attention (4 heads)
-    ├── Handcrafted Features (Jaccard, containment, POS similarity, n-gram overlap, length ratio)
-    └── Feature Fusion → Residual Classifier → Similarity Score
-```
+## Objectives
 
-## Datasets
+- Design and train a Siamese BiLSTM network with attention for sentence-level semantic similarity detection.
+- Augment learned representations with handcrafted linguistic features to improve robustness across paraphrase types.
+- Evaluate the approach on large-scale benchmark datasets combining both human-annotated and adversarially constructed paraphrase pairs.
 
-| Dataset | Size | Purpose |
-|---------|------|---------|
-| PAWS | ~50K pairs | Adversarial paraphrase detection |
-| Quora Question Pairs | ~400K pairs | Real-world semantic similarity |
+---
 
-## Key Techniques
+## Methodology
 
-- **Siamese Architecture:** Shared weights for efficient sentence comparison
-- **Multi-Head Attention:** 4-head self-attention for contextual understanding
-- **Data Augmentation:** WordNet synonym replacement (30% probability)
-- **Focal Loss:** Handles class imbalance (α=0.75, γ=2)
-- **Feature Engineering:** 5 handcrafted linguistic features fused with neural representations
+### Architecture
 
-## Hyperparameters
+The model follows a Siamese structure in which both input sentences share identical encoder weights. Each sentence is encoded by a three-layer bidirectional LSTM with 512 hidden units per direction. A four-head multi-head attention mechanism is applied over the BiLSTM output to produce a context-aware sentence representation.
 
-```python
-CONFIG = {
-    "max_sequence_length": 128,
-    "embedding_dim": 384,
-    "hidden_dim": 512,
-    "num_layers": 3,
-    "dropout": 0.4,
-    "batch_size": 64,
-    "epochs": 20,
-    "lr": 2e-4,
-    "weight_decay": 0.05,
-    "focal_alpha": 0.75,
-    "focal_gamma": 2,
-    "augment_prob": 0.3,
-    "vocab_size": 35000
-}
-```
+In parallel, a set of handcrafted linguistic features is computed for each sentence pair: Jaccard similarity, containment ratio, part-of-speech similarity, n-gram overlap at multiple granularities, and length ratio. These features are concatenated with the attention-weighted representations and passed through a residual classifier that produces the final binary prediction.
 
-## Tech Stack
+### Training
 
-- Python 3.8+, PyTorch
-- HuggingFace Datasets, spaCy, NLTK
-- Jupyter Notebooks (Kaggle T4×2 GPU recommended)
+The model is trained on two datasets: PAWS (approximately 50,000 pairs), which contains adversarially constructed paraphrases requiring semantic rather than lexical matching, and the Quora Question Pairs dataset (approximately 400,000 pairs). Data augmentation is applied via WordNet synonym substitution with a 30% probability, improving generalization across lexical variations. Training uses Focal Loss (α = 0.75, γ = 2) to address class imbalance and focus learning on difficult examples.
+
+---
+
+## Technologies
+
+Python · PyTorch · HuggingFace Datasets · spaCy · NLTK · Jupyter Notebook
+
+---
 
 ## Repository Structure
 
 ```
-.
-├── trainingCode.ipynb    # Full training pipeline
-└── README.md             # This file
+paraphraseDetection-master/
+├── trainingCode.ipynb
+└── README.md
 ```
 
-## Usage
-
-```bash
-# Install dependencies
-pip install torch datasets huggingface-hub spacy nltk
-
-# Download spaCy model
-python -m spacy download en_core_web_sm
-
-# Open notebook
-jupyter notebook trainingCode.ipynb
-```
-
-## Outputs
-
-- `best_model.pth` — Best checkpoint with vocabulary
-- `confusion_matrix.png` — Prediction performance visualization
-- `test_results.pkl` — Detailed metrics and classification report
+---
 
 ## Authors
 
-**Adem Toumi** — ESI-SBA, Engineering Degree in AI & Data Science  
-**Ahmed Saadi** — ESI-SBA, Engineering Degree & M2 in AI & Data Science
-
-## License
-
-MIT
+Adem Toumi — ESI-SBA  
+Ahmed Saadi — ESI-SBA
